@@ -142,34 +142,6 @@ export default function Home() {
     }
   }
 
-  const handleBatchMint = async () => {
-    if (!wallet.connected) {
-      alert('Connect wallet first')
-      return
-    }
-
-    setBatchMinting(true)
-    try {
-      if (PACKAGE_ID === '0x...' || MARKETPLACE_ID === '0x...') {
-        // Demo mode
-        console.log('Would batch mint 10 free NFTs')
-        await new Promise(resolve => setTimeout(resolve, 3000))
-        alert('10 Free Random Ape NFTs created! (Demo mode - deploy contract to actually mint)')
-      } else {
-        // Real batch minting
-        const result = await batchMintFreeNFTs(wallet, 10, PACKAGE_ID, MARKETPLACE_ID)
-        console.log('Batch mint successful:', result)
-        alert('10 Free Random Ape NFTs minted successfully!')
-        // Refresh NFTs after successful minting
-        await refreshNFTs()
-      }
-    } catch (error) {
-      console.error('Batch mint failed:', error)
-      alert('Batch mint failed: ' + (error as any).message)
-    } finally {
-      setBatchMinting(false)
-    }
-  }
 
   return (
     <div className="min-h-screen bg-sui-dark-900">
