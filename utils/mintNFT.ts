@@ -84,3 +84,41 @@ export async function mintFreeNFT(
 
   return result
 }
+
+// Batch mint multiple free NFTs
+export async function batchMintFreeNFTs(
+  wallet: any,
+  count: number,
+  packageId: string,
+  marketplaceId: string
+) {
+  if (!wallet.connected) {
+    throw new Error('Wallet not connected')
+  }
+
+  if (count < 1 || count > 10) {
+    throw new Error('Count must be between 1 and 10')
+  }
+
+  const tx = new Transaction()
+
+  // Call the batch mint function
+  tx.moveCall({
+    target: `${packageId}::nft_marketplace::batch_mint_free_nfts`,
+    arguments: [
+      tx.object(marketplaceId),
+      tx.pure.u8(count),
+    ],
+  })
+
+  // Sign and execute the transaction
+  const result = await wallet.signAndExecuteTransactionBlock({
+    transactionBlock: tx,
+    options: {
+      showEffects: true,
+      showObjectChanges: true,
+    },
+  })
+
+  return result
+}

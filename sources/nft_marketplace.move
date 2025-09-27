@@ -344,6 +344,87 @@ module nft_marketplace::nft_marketplace {
     }
 
 
+    // Batch mint multiple free NFTs at once
+    public entry fun batch_mint_free_nfts(
+        marketplace: &mut Marketplace,
+        count: u8, // Number of NFTs to mint (max 10)
+        ctx: &mut TxContext
+    ) {
+        assert!(count > 0 && count <= 10, EInsufficientPayment); // Reuse error code
+        
+        let collection_name = string::utf8(b"Random");
+        
+        // Auto-create Random collection if it doesnt exist
+        if (!table::contains(&marketplace.collections, collection_name)) {
+            let collection = Collection {
+                id: object::new(ctx),
+                name: collection_name,
+                description: string::utf8(b"Random collection of free NFTs for testing"),
+                creator: tx_context::sender(ctx),
+                nft_count: 1,
+                created_at: tx_context::epoch(ctx),
+            };
+            
+            let coll_id = object::uid_to_address(&collection.id);
+            table::add(&mut marketplace.collections, collection_name, coll_id);
+            marketplace.collections_count = marketplace.collections_count + 1;
+            
+            event::emit(CollectionCreated {
+                collection_id: coll_id,
+                name: collection_name,
+                creator: tx_context::sender(ctx),
+            });
+            
+            transfer::public_transfer(collection, tx_context::sender(ctx));
+        };
+        
+        let random_names = vector[b"Ape", b"Monkey", b"Chimp", b"Gorilla", b"Baboon", b"Orangutan", b"Lemur", b"Macaque", b"Bonobo", b"Gibbon"];
+        let mut i = 0u8;
+        
+        while (i < count) {
+            let serial_number = marketplace.nfts_minted + 1;
+            
+            // Use different name patterns for variety
+            let name_index = ((tx_context::epoch(ctx) + (i as u64)) % 10) as u8;
+            let base_name = *vector::borrow(&random_names, (name_index as u64));
+            let base_name_str = string::utf8(base_name);
+            let serial_str = u64_to_string(serial_number);
+            let hash_str = string::utf8(b" #");
+            
+            // Create final name
+            let mut final_name = base_name_str;
+            string::append(&mut final_name, hash_str);
+            string::append(&mut final_name, serial_str);
+            
+            let nft = NFT {
+                id: object::new(ctx),
+                name: final_name,
+                description: string::utf8(b"A randomly generated NFT from the Random collection"),
+                image_url: url::new_unsafe_from_bytes(b"https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149622024.jpg"),
+                creator: tx_context::sender(ctx),
+                rarity: string::utf8(b"Common"),
+                collection_id: option::some(*table::borrow(&marketplace.collections, collection_name)),
+                collection_name: option::some(collection_name),
+            };
+            
+            let nft_id = object::uid_to_address(&nft.id);
+            marketplace.nfts_minted = marketplace.nfts_minted + 1;
+            
+            event::emit(NFTMinted {
+                nft_id,
+                name: nft.name,
+                creator: tx_context::sender(ctx),
+                price: 0, // Free!
+                collection_id: nft.collection_id,
+                collection_name: nft.collection_name,
+            });
+            
+            transfer::public_transfer(nft, tx_context::sender(ctx));
+            i = i + 1;
+        };
+    }
+
+
     // Transfer NFT to another address
     public entry fun transfer_nft(nft: NFT, recipient: address, ctx: &mut TxContext) {
         let nft_id = object::uid_to_address(&nft.id);

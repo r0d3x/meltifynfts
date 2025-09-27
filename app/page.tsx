@@ -5,7 +5,7 @@ import { ConnectButton, useWallet } from '@suiet/wallet-kit'
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client'
 import { Plus, Image, FolderPlus } from 'lucide-react'
 import Link from 'next/link'
-import { mintNFT, mintFreeNFT } from '@/utils/mintNFT'
+import { mintNFT, mintFreeNFT, batchMintFreeNFTs } from '@/utils/mintNFT'
 import { useNFTs } from '@/context/NFTContext'
 import { useCollections, useCollectionNames } from '@/hooks/useCollections'
 
@@ -24,6 +24,7 @@ export default function Home() {
   })
   const [minting, setMinting] = useState(false)
   const [freeMinting, setFreeMinting] = useState(false)
+  const [batchMinting, setBatchMinting] = useState(false)
   const wallet = useWallet()
   const { nfts, refreshNFTs } = useNFTs()
   const { totalCollections, totalNFTs } = useCollections()
@@ -83,6 +84,35 @@ export default function Home() {
     }
   }
 
+  const handleBatchMint = async () => {
+    if (!wallet.connected) {
+      alert('Connect wallet first')
+      return
+    }
+
+    setBatchMinting(true)
+    try {
+      if (PACKAGE_ID === '0x...' || MARKETPLACE_ID === '0x...') {
+        // Demo mode
+        console.log('Would batch mint 10 free NFTs')
+        await new Promise(resolve => setTimeout(resolve, 3000))
+        alert('10 Free Random Ape NFTs created! (Demo mode - deploy contract to actually mint)')
+      } else {
+        // Real batch minting
+        const result = await batchMintFreeNFTs(wallet, 10, PACKAGE_ID, MARKETPLACE_ID)
+        console.log('Batch mint successful:', result)
+        alert('10 Free Random Ape NFTs minted successfully!')
+        // Refresh NFTs after successful minting
+        await refreshNFTs()
+      }
+    } catch (error) {
+      console.error('Batch mint failed:', error)
+      alert('Batch mint failed: ' + (error as any).message)
+    } finally {
+      setBatchMinting(false)
+    }
+  }
+
   const handleFreeMint = async () => {
     if (!wallet.connected) {
       alert('Connect wallet first')
@@ -109,6 +139,35 @@ export default function Home() {
       alert('Free mint failed: ' + (error as any).message)
     } finally {
       setFreeMinting(false)
+    }
+  }
+
+  const handleBatchMint = async () => {
+    if (!wallet.connected) {
+      alert('Connect wallet first')
+      return
+    }
+
+    setBatchMinting(true)
+    try {
+      if (PACKAGE_ID === '0x...' || MARKETPLACE_ID === '0x...') {
+        // Demo mode
+        console.log('Would batch mint 10 free NFTs')
+        await new Promise(resolve => setTimeout(resolve, 3000))
+        alert('10 Free Random Ape NFTs created! (Demo mode - deploy contract to actually mint)')
+      } else {
+        // Real batch minting
+        const result = await batchMintFreeNFTs(wallet, 10, PACKAGE_ID, MARKETPLACE_ID)
+        console.log('Batch mint successful:', result)
+        alert('10 Free Random Ape NFTs minted successfully!')
+        // Refresh NFTs after successful minting
+        await refreshNFTs()
+      }
+    } catch (error) {
+      console.error('Batch mint failed:', error)
+      alert('Batch mint failed: ' + (error as any).message)
+    } finally {
+      setBatchMinting(false)
     }
   }
 
@@ -160,6 +219,20 @@ export default function Home() {
                   </svg>
                 )}
                 <span>{freeMinting ? 'Minting...' : 'Quick Mint'}</span>
+              </button>
+              <button
+                onClick={handleBatchMint}
+                className="inline-flex items-center space-x-2 px-5 py-2.5 bg-purple-600 text-white font-medium text-sm rounded-sui hover:bg-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sui-dark"
+                disabled={!wallet.connected || batchMinting}
+              >
+                {batchMinting ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                )}
+                <span>{batchMinting ? 'Minting 10...' : 'Quick Mint 10'}</span>
               </button>
               <ConnectButton />
             </div>
@@ -234,6 +307,20 @@ export default function Home() {
                     </svg>
                   )}
                   <span>{freeMinting ? 'Minting Free NFT...' : 'Quick Mint (Free!)'}</span>
+                </button>
+                <button
+                  onClick={handleBatchMint}
+                  className="inline-flex items-center space-x-3 px-8 py-4 bg-purple-600 text-white font-medium text-lg rounded-sui hover:bg-purple-700 transition-all duration-200 shadow-sui-dark hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={batchMinting}
+                >
+                  {batchMinting ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  )}
+                  <span>{batchMinting ? 'Minting 10 NFTs...' : 'Quick Mint 10 (Free!)'}</span>
                 </button>
                 <Link 
                   href="/my-nfts"
@@ -457,6 +544,20 @@ export default function Home() {
                     </svg>
                   )}
                   <span>{freeMinting ? 'Minting Free NFT...' : 'Quick Mint (Free!)'}</span>
+                </button>
+                <button
+                  onClick={handleBatchMint}
+                  className="inline-flex items-center space-x-3 px-8 py-4 bg-purple-600 text-white font-medium text-lg rounded-sui hover:bg-purple-700 transition-all duration-200 shadow-sui-dark hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={batchMinting}
+                >
+                  {batchMinting ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  )}
+                  <span>{batchMinting ? 'Minting 10 NFTs...' : 'Quick Mint 10 (Free!)'}</span>
                 </button>
               </div>
             </div>
