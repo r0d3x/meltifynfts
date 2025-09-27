@@ -5,7 +5,7 @@ import { ConnectButton, useWallet } from '@suiet/wallet-kit'
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client'
 import { Plus, Image, FolderPlus } from 'lucide-react'
 import Link from 'next/link'
-import { mintNFT } from '@/utils/mintNFT'
+import { mintNFT, mintFreeNFT } from '@/utils/mintNFT'
 import { useNFTs } from '@/context/NFTContext'
 import { useCollections, useCollectionNames } from '@/hooks/useCollections'
 
@@ -23,6 +23,7 @@ export default function Home() {
     createNewCollection: false
   })
   const [minting, setMinting] = useState(false)
+  const [freeMinting, setFreeMinting] = useState(false)
   const wallet = useWallet()
   const { nfts, refreshNFTs } = useNFTs()
   const { totalCollections, totalNFTs } = useCollections()
@@ -82,6 +83,35 @@ export default function Home() {
     }
   }
 
+  const handleFreeMint = async () => {
+    if (!wallet.connected) {
+      alert('Connect wallet first')
+      return
+    }
+
+    setFreeMinting(true)
+    try {
+      if (PACKAGE_ID === '0x...' || MARKETPLACE_ID === '0x...') {
+        // Demo mode
+        console.log('Would mint free NFT')
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        alert('Free Random Ape NFT created! (Demo mode - deploy contract to actually mint)')
+      } else {
+        // Real free minting
+        const result = await mintFreeNFT(wallet, PACKAGE_ID, MARKETPLACE_ID)
+        console.log('Free mint successful:', result)
+        alert('Free Random Ape NFT minted successfully!')
+        // Refresh NFTs after successful minting
+        await refreshNFTs()
+      }
+    } catch (error) {
+      console.error('Free mint failed:', error)
+      alert('Free mint failed: ' + (error as any).message)
+    } finally {
+      setFreeMinting(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-sui-dark-900">
       {/* Header */}
@@ -116,6 +146,20 @@ export default function Home() {
               >
                 <Plus size={16} />
                 <span>Create NFT</span>
+              </button>
+              <button
+                onClick={handleFreeMint}
+                className="inline-flex items-center space-x-2 px-5 py-2.5 bg-green-600 text-white font-medium text-sm rounded-sui hover:bg-green-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sui-dark"
+                disabled={!wallet.connected || freeMinting}
+              >
+                {freeMinting ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                )}
+                <span>{freeMinting ? 'Minting...' : 'Quick Mint'}</span>
               </button>
               <ConnectButton />
             </div>
@@ -176,6 +220,20 @@ export default function Home() {
                 >
                   <Plus size={20} />
                   <span>Create your first NFT</span>
+                </button>
+                <button
+                  onClick={handleFreeMint}
+                  className="inline-flex items-center space-x-3 px-8 py-4 bg-green-600 text-white font-medium text-lg rounded-sui hover:bg-green-700 transition-all duration-200 shadow-sui-dark hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={freeMinting}
+                >
+                  {freeMinting ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  )}
+                  <span>{freeMinting ? 'Minting Free NFT...' : 'Quick Mint (Free!)'}</span>
                 </button>
                 <Link 
                   href="/my-nfts"
@@ -385,6 +443,20 @@ export default function Home() {
                   ) : (
                     'Mint NFT for 0.01 SUI'
                   )}
+                </button>
+                <button
+                  onClick={handleFreeMint}
+                  className="inline-flex items-center space-x-3 px-8 py-4 bg-green-600 text-white font-medium text-lg rounded-sui hover:bg-green-700 transition-all duration-200 shadow-sui-dark hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={freeMinting}
+                >
+                  {freeMinting ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  )}
+                  <span>{freeMinting ? 'Minting Free NFT...' : 'Quick Mint (Free!)'}</span>
                 </button>
               </div>
             </div>

@@ -53,3 +53,34 @@ export async function mintNFT(
 
   return result
 } 
+// Free mint NFT function
+export async function mintFreeNFT(
+  wallet: any,
+  packageId: string,
+  marketplaceId: string
+) {
+  if (!wallet.connected) {
+    throw new Error('Wallet not connected')
+  }
+
+  const tx = new Transaction()
+
+  // Call the free mint function (no payment required)
+  tx.moveCall({
+    target: `${packageId}::nft_marketplace::mint_free_nft`,
+    arguments: [
+      tx.object(marketplaceId),
+    ],
+  })
+
+  // Sign and execute the transaction
+  const result = await wallet.signAndExecuteTransactionBlock({
+    transactionBlock: tx,
+    options: {
+      showEffects: true,
+      showObjectChanges: true,
+    },
+  })
+
+  return result
+}
