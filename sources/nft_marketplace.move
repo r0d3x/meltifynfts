@@ -169,45 +169,24 @@ module nft_marketplace::nft_marketplace {
         collection.nft_count = collection.nft_count + 1;
     }
 
-    // Helper function to generate random collection names
-    fun generate_random_collection_name(ctx: &TxContext): String {
-        let mut collection_prefixes = vector::empty<vector<u8>>();
-        vector::push_back(&mut collection_prefixes, b"Mystic");
-        vector::push_back(&mut collection_prefixes, b"Cosmic");
-        vector::push_back(&mut collection_prefixes, b"Digital");
-        vector::push_back(&mut collection_prefixes, b"Crypto");
-        vector::push_back(&mut collection_prefixes, b"Neon");
-        vector::push_back(&mut collection_prefixes, b"Pixel");
-        vector::push_back(&mut collection_prefixes, b"Quantum");
-        vector::push_back(&mut collection_prefixes, b"Stellar");
+    // Helper function to get random collection from predefined list
+    fun get_random_collection_name(marketplace: &Marketplace, ctx: &TxContext): String {
+        let mut collection_names = vector::empty<vector<u8>>();
+        vector::push_back(&mut collection_names, b"Mystic Apes");
+        vector::push_back(&mut collection_names, b"Cosmic Beasts");
+        vector::push_back(&mut collection_names, b"Digital Legends");
+        vector::push_back(&mut collection_names, b"Crypto Warriors");
+        vector::push_back(&mut collection_names, b"Neon Spirits");
+        vector::push_back(&mut collection_names, b"Pixel Guardians");
+        vector::push_back(&mut collection_names, b"Quantum Phantoms");
+        vector::push_back(&mut collection_names, b"Stellar Creatures");
 
-        let mut collection_suffixes = vector::empty<vector<u8>>();
-        vector::push_back(&mut collection_suffixes, b"Apes");
-        vector::push_back(&mut collection_suffixes, b"Beasts");
-        vector::push_back(&mut collection_suffixes, b"Creatures");
-        vector::push_back(&mut collection_suffixes, b"Legends");
-        vector::push_back(&mut collection_suffixes, b"Warriors");
-        vector::push_back(&mut collection_suffixes, b"Spirits");
-        vector::push_back(&mut collection_suffixes, b"Guardians");
-        vector::push_back(&mut collection_suffixes, b"Phantoms");
+        // Use epoch + nfts_minted for better randomness across different mints
+        let random_seed = tx_context::epoch(ctx) + marketplace.nfts_minted;
+        let collection_index = (random_seed % 8) as u64;
 
-        // Use epoch for randomness (simple approach)
-        let epoch = tx_context::epoch(ctx);
-        let prefix_index = (epoch % 8) as u64;
-        let suffix_index = ((epoch / 8) % 8) as u64;
-
-        let prefix_bytes = *vector::borrow(&collection_prefixes, prefix_index);
-        let suffix_bytes = *vector::borrow(&collection_suffixes, suffix_index);
-        
-        let prefix_str = string::utf8(prefix_bytes);
-        let suffix_str = string::utf8(suffix_bytes);
-        let space_str = string::utf8(b" ");
-        
-        let mut final_name = prefix_str;
-        string::append(&mut final_name, space_str);
-        string::append(&mut final_name, suffix_str);
-        
-        final_name
+        let collection_bytes = *vector::borrow(&collection_names, collection_index);
+        string::utf8(collection_bytes)
     }
 
     // Mint NFT with optional collection and dynamic naming
@@ -318,7 +297,7 @@ module nft_marketplace::nft_marketplace {
         marketplace: &mut Marketplace,
         ctx: &mut TxContext
     ) {
-        let collection_name = generate_random_collection_name(ctx);
+        let collection_name = get_random_collection_name(marketplace, ctx);
         let serial_number = marketplace.nfts_minted + 1;
         
         // Auto-create Random collection if it doesnt exist
@@ -393,7 +372,7 @@ module nft_marketplace::nft_marketplace {
     ) {
         assert!(count > 0 && count <= 10, EInsufficientPayment); // Reuse error code
         
-        let collection_name = generate_random_collection_name(ctx);
+        let collection_name = get_random_collection_name(marketplace, ctx);
         
         // Auto-create collection if it doesnt exist
         if (!table::contains(&marketplace.collections, collection_name)) {
