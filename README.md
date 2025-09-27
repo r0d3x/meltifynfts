@@ -1,63 +1,38 @@
-# MeltyFi - NFT Liquidity Protocol
+# NFT Marketplace
 
-Transform your NFTs into instant liquidity through decentralized lotteries on Sui blockchain.
+A minimal NFT marketplace on Sui blockchain with dynamic naming and collections.
 
-## 🍫 What is MeltyFi?
-
-MeltyFi allows NFT holders to create lotteries with their NFTs as prizes and receive **instant liquidity** (95% of potential funds upfront). Other users buy lottery tickets, and the winner gets the NFT.
-
-### Key Features
-
-- **Instant Liquidity**: Get paid immediately when creating lotteries
-- **Fair & Transparent**: Decentralized lottery system on Sui
-- **Low Fees**: Minimal platform fees, maximum returns
-- **Beginner Friendly**: Simple workflow designed for first-time users
-- **NFT Creation**: Built-in NFT minting for new users
-
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and connect your Sui wallet.
+**Contract already deployed!** Create `.env.local`:
+```bash
+NEXT_PUBLIC_PACKAGE_ID=0xf26823e22a284a2fc425ec96c01624e3649b163c0cf1b45685f40adb780e6b47
+NEXT_PUBLIC_MARKETPLACE_ID=0x78a1ce654a2156dfe5f710183251f9e6664bbc97d7b409e3762fc43053340b4c
+```
 
-## 💡 How It Works
+## Features
 
-1. **Create/Own NFTs**: Use our built-in NFT creator or bring your existing NFTs
-2. **Start Lottery**: Deposit your NFT and set lottery parameters
-3. **Get Instant Payout**: Receive 95% of potential lottery funds immediately
-4. **Users Buy Tickets**: Community purchases lottery tickets
-5. **Winner Selected**: Decentralized random selection determines winner
-
-## 🎯 For Hackathon Judges
-
-This project showcases:
-
-- **Innovative DeFi Primitive**: NFT-backed instant liquidity
-- **Excellent UX**: Beginner-friendly interface with clear user flow
-- **Sui Integration**: Leverages Sui's speed and low fees
-- **Real Utility**: Solves actual liquidity problems for NFT holders
+- Dynamic NFT names (`BaseName #1234`)
+- Collection management
+- Sui wallet integration
+- Clean Sui design system
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
-- **Blockchain**: Sui Move smart contracts
-- **Wallet**: Suiet Wallet Kit
-- **Design**: Custom Sui-inspired design system
+- Next.js + TypeScript
+- Sui Move
+- Tailwind CSS
+- @mysten/sui
 
-## Project Structure
+## Deploy Your Own (Optional)
 
+If you want to deploy your own contract:
+```bash
+sui move build
+sui client publish --gas-budget 100000000
 ```
-meltyfi-new/
-├── app/                 # Next.js pages
-│   ├── page.tsx        # Main dashboard
-│   ├── lotteries/      # Browse active lotteries
-│   └── create-nft/     # NFT creation (secondary feature)
-├── components/         # Reusable UI components
-├── hooks/             # Custom React hooks
-└── utils/             # Helper functions
-```
-
-Built with ❤️ for Sui hackathon
