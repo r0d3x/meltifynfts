@@ -50,11 +50,12 @@ export function NFTProvider({ children }: { children: ReactNode }) {
       return
     }
     
+    const walletAddress = wallet.address // Store address in a variable to ensure type safety
     setLoading(true)
     try {
       // Fetch NFTs from current contract
       const currentObjects = await suiClient.getOwnedObjects({
-        owner: wallet.address,
+        owner: walletAddress,
         filter: {
           StructType: `${PACKAGE_ID}::nft_marketplace::NFT`
         },
@@ -68,7 +69,7 @@ export function NFTProvider({ children }: { children: ReactNode }) {
       const previousObjects = await Promise.all(
         PREVIOUS_PACKAGE_IDS.map(packageId =>
           suiClient.getOwnedObjects({
-            owner: wallet.address,
+            owner: walletAddress,
             filter: {
               StructType: `${packageId}::nft_marketplace::NFT`
             },
